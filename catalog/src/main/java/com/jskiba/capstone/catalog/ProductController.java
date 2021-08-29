@@ -26,6 +26,6 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public Product getById(@PathVariable String id) {
-        return productRepository.getById(id);
+        return productRepository.getByUniqId(id);
     }
 }

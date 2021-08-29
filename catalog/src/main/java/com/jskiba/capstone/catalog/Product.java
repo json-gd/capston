@@ -2,13 +2,12 @@ package com.jskiba.capstone.catalog;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "products")
 public class Product {
-    @Id private UUID uniqId;
+    @Column @Id private String uniqId;
     @Column String sku;
     @Column String nameTitle;
     @Column String description;
