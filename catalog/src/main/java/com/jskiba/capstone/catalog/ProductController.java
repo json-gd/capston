@@ -28,4 +28,9 @@ public class ProductController {
     public Product getById(@PathVariable String id) {
         return productRepository.getByUniqId(id);
     }
+
+    @GetMapping("/sku/{sku}")
+    public List<Product> listBySku(@PathVariable String sku) {
+        return productRepository.findBySku(sku);
+    }
 }
