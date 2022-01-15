@@ -2,17 +2,18 @@ package com.jskiba.capstone.catalog;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductRepository productRepository;
+    private final Random random = new Random();
 
     @Autowired
     public ProductController(ProductRepository productRepository) {
@@ -25,8 +26,9 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Product getById(@PathVariable String id) {
-        return productRepository.getByUniqId(id);
+    public Product getById(@PathVariable String id) throws InterruptedException {
+        Thread.sleep(random.nextInt(800));
+        return productRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/sku/{sku}")

@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductStatusController {
     private final ProductStatusRepository repository;
+    private final Random random = new Random();
 
     @Autowired
     public ProductStatusController(ProductStatusRepository repository) {
@@ -19,7 +21,8 @@ public class ProductStatusController {
     }
 
     @GetMapping(path = "/id/{id}")
-    public Optional<ProductStatus> productStatus(@PathVariable String id) {
+    public Optional<ProductStatus> productStatus(@PathVariable String id) throws InterruptedException {
+        Thread.sleep(random.nextInt(800));
         return repository.findById(id);
     }
 }

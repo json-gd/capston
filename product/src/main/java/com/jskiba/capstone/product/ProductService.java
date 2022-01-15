@@ -22,20 +22,16 @@ public class ProductService {
         this.restTemplate = restTemplate;
     }
 
-    @HystrixCommand()
-    Product getProductFromCatalog(String id) {
+    @HystrixCommand(fallbackMethod = "handleCatalogServiceUnavailabilityId", commandKey = "product-service")
+    Optional<Product> getProductFromCatalog(String id) throws ResponseStatusException {
         ResponseEntity<Product> itemResponseEntity =
                 restTemplate.getForEntity("http://catalog/api/products/{id}",
                         Product.class,
                         id);
-        if (itemResponseEntity.getStatusCode() == HttpStatus.OK) {
-            return itemResponseEntity.getBody();
-        }
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+        return Optional.ofNullable(itemResponseEntity.getBody());
     }
 
-
-    @HystrixCommand()
+    @HystrixCommand(fallbackMethod = "handleCatalogServiceUnavailabilitySku", commandKey = "product-service")
     List<Product> getProductFromCatalogBySku(String sku) {
         ResponseEntity<Product[]> itemResponseEntity =
                 restTemplate.getForEntity("http://catalog/api/products/sku/{sku}",
@@ -44,19 +40,32 @@ public class ProductService {
         if (itemResponseEntity.getStatusCode() == HttpStatus.OK) {
             return Arrays.asList(itemResponseEntity.getBody());
         }
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+        return List.of();
     }
 
 
-    @HystrixCommand()
-    ProductAvailabilityResponse getProductFromInventory(String id) {
+    @HystrixCommand(fallbackMethod = "handleInventoryServiceUnavailability", commandKey = "inventory-service")
+    Optional<ProductAvailabilityResponse> getProductFromInventory(String id) {
         ResponseEntity<ProductAvailabilityResponse> itemResponseEntity =
                 restTemplate.getForEntity("http://inventory/api/products/id/{id}",
                         ProductAvailabilityResponse.class,
                         id);
         if (itemResponseEntity.getStatusCode() == HttpStatus.OK) {
-            return itemResponseEntity.getBody();
+            return Optional.of(itemResponseEntity.getBody());
         }
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+        return Optional.empty();
     }
+
+    Optional<Product> handleCatalogServiceUnavailabilityId(String id) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Catalog service is down or unreachable");
+    }
+
+    List<Product> handleCatalogServiceUnavailabilitySku(String sku, Throwable e) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Catalog service is down or unreachable");
+    }
+
+    Optional<ProductAvailabilityResponse> handleInventoryServiceUnavailability(String id, Throwable e) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Inventory service is down or unreachable");
+    }
+
 }
