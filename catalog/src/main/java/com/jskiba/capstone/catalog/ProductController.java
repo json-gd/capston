@@ -27,7 +27,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public Product getById(@PathVariable String id) throws InterruptedException {
-        Thread.sleep(random.nextInt(800));
+//        Thread.sleep(random.nextInt(800));
         return productRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 

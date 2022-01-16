@@ -13,16 +13,19 @@ import java.util.Random;
 @RequestMapping("/api/products")
 public class ProductStatusController {
     private final ProductStatusRepository repository;
+    private final CatalogService catalogService;
     private final Random random = new Random();
 
     @Autowired
-    public ProductStatusController(ProductStatusRepository repository) {
+    public ProductStatusController(ProductStatusRepository repository, CatalogService catalogService) {
         this.repository = repository;
+        this.catalogService = catalogService;
     }
 
     @GetMapping(path = "/id/{id}")
     public Optional<ProductStatus> productStatus(@PathVariable String id) throws InterruptedException {
-        Thread.sleep(random.nextInt(800));
+//        Thread.sleep(random.nextInt(800)); // Simulate delays for CB pattern testing.
+        this.catalogService.getProduct(id); // Add to have something to track by zipkin.
         return repository.findById(id);
     }
 }
